@@ -23,7 +23,22 @@ import PrivacyScreen from './screens/PrivacyScreen'
 import TermScreen from './screens/TermScreen'
 import SettingScreen from './screens/SettingScreen'
 
+//provider
+import  FilterContext from './components/FilterContext'
+export const FilterProvider = ({ children }) => {
+  const [filter, setFilter] = useState([]);
 
+  return (
+    <FilterContext.Provider
+      value={{
+        filter,
+        setFilter,
+      }}
+    >
+      {children}
+    </FilterContext.Provider>
+  );
+};
 
 
 const Stack = createStackNavigator()
@@ -81,6 +96,8 @@ export default function App() {
     </Stack.Navigator>
   );
   return (
+    <FilterProvider>
+
     <NavigationContainer>
       <StatusBar style='dark' />
       <Stack.Navigator screenOptions={globalScreenOptions}>
@@ -102,5 +119,7 @@ export default function App() {
         <Stack.Screen name='Setting' component={SettingScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
+    </FilterProvider>
+
   )
 }

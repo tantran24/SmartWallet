@@ -6,7 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import format from 'date-fns/format'
 import {Picker} from '@react-native-picker/picker'
 import {db} from '../firebase'
-import firebase from 'firebase'
+import firebase from 'firebase/compat/app';
 import parse from 'date-fns/parse'
 
 const UpdateScreen = ({route, navigation}) => {

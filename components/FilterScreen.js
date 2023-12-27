@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View, Pressable} from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
+import { db, auth } from '../firebase'
+import firebase from 'firebase/compat/app';
+import  FilterContext  from './FilterContext';
 // import RNPickerSelect from 'react-native-picker-select';
 
 const FilterScreen = ({ visible, setVisible, navigation }) => {
   const [selectedType, setselectedType] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  // const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const  { filter, setFilter } = useContext(FilterContext);
 
   const handleCategorySelect = (category) => {
     setselectedType(category);
@@ -21,25 +27,25 @@ const FilterScreen = ({ visible, setVisible, navigation }) => {
     setselectedType('');
     setSortBy('');
   };
-  // const expenseCategories = [
-  //   { label: "🎓 Education", value: "education", icon: "md-school" },
-  //   { label: "🎮 Entertainment", value: "entertainment", icon: "md-game-controller-b" },
-  //   { label: "👗 Clothes", value: "clothing", icon: "md-shirt" },
-  //   { label: "🍜 Food", value: "food", icon: "md-restaurant" },
-  //   { label: "📦 Other", value: "other", icon: "md-options" }
-  // ];
+  const expenseCategories = [
+    { label: "🎓 Education", value: "education", icon: "md-school" },
+    { label: "🎮 Entertainment", value: "entertainment", icon: "md-game-controller-b" },
+    { label: "👗 Clothes", value: "clothing", icon: "md-shirt" },
+    { label: "🍜 Food", value: "food", icon: "md-restaurant" },
+    { label: "📦 Other", value: "other", icon: "md-options" }
+  ];
   
-  // const incomeCategories = [
-  //   { label: "💰 Salary", value: "salary", icon: "md-cash" },
-  //   { label: "🏦 Investment", value: "investment", icon: "md-trending-up" },
-  //   { label: "💵 Gift", value: "gift", icon: "md-gift" },
-  //   { label: "🪙 Bonus", value: "bonus", icon: "md-gift" },
-  //   { label: "📦 Other", value: "other", icon: "md-options" }
-  // ];
+  const incomeCategories = [
+    { label: "💰 Salary", value: "salary", icon: "md-cash" },
+    { label: "🏦 Investment", value: "investment", icon: "md-trending-up" },
+    { label: "💵 Gift", value: "gift", icon: "md-gift" },
+    { label: "🪙 Bonus", value: "bonus", icon: "md-gift" },
+    { label: "📦 Other", value: "other", icon: "md-options" }
+  ];
   // Define the filter conditions
-const timestampFilter = "highest"; // Options: "highest", "lowest", "newest", "oldest"
-const typeFilter = "expense"; // Options: "income", "expense"
-const categoryFilter = "food"; // Options: "education", "entertainment", "clothing", "food", "other", "salary", "investment", "gift", "bonus"
+// const timestampFilter = "highest"; // Options: "highest", "lowest", "newest", "oldest"
+// const typeFilter = "expense"; // Options: "income", "expense"
+// const categoryFilter = "education"; // Options: "education", "entertainment", "clothing", "food", "other", "salary", "investment", "gift", "bonus"
 
 // Filter the data
 useEffect(() => {
@@ -56,25 +62,64 @@ useEffect(() => {
     );
   return unsubscribe;
 }, []);
-db.collection("expense")
-  .where("type", "==", typeFilter)
-  .where("category", "==", categoryFilter)
-  .orderBy("timestamp", timestampFilter == "highest" ? "desc" : "asc")
-  .limit(1)
-  .get()
-  .then((querySnapshot) => {
-    if (querySnapshot.empty) {
-      console.log("No transaction found matching the filtered condition.");
-    } else {
-      // Process the filtered data
-      querySnapshot.forEach((doc) => {
-        console.log(doc.id, " => ", doc.data());
-      });
-    }
-  })
-  .catch((error) => {
-    console.log("Error getting documents: ", error);
-  });
+console.log(selectedType,  selectedCategory, sortBy)
+const handleFilter = (typeFilter, categoryFilter, sortFilter) => {
+//   sortFilter = "highest"; // Options: "highest", "lowest", "newest", "oldest"
+//  typeFilter = "income"; // Options: "income", "expense"
+//  categoryFilter = "salary"; // Options: "education", "entertainment", "clothing", "food", "other", "salary", "investment", "gift", "bonus"
+console.log("CHECK: ",typeFilter,  categoryFilter, sortFilter)
+
+  if(sortFilter==='newest' || sortFilter==='oldest'){
+    db.collection("expense")
+    .where("type", "==", typeFilter)
+    .where("category", "==", categoryFilter)
+    .orderBy("timestamp", sortFilter == "newest" ? "desc" : "asc")
+    .limit(3)
+    .get()
+    .then((querySnapshot) => {
+      if (querySnapshot.empty) {
+        console.log("No transaction found matching the filtered condition.");
+        setFilter([]);
+      } else {
+        const filteredData = [];
+        querySnapshot.forEach((doc) => {
+          console.log(doc.id, " => ", doc.data());
+          filteredData.push({id: doc.id, data: doc.data()});
+        });
+        setFilter(filteredData);
+      }
+    })
+    .catch((error) => {
+      console.log("Error getting documents: ", error);
+    });
+  }
+  else{
+    db.collection("expense")
+    .where("type", "==", typeFilter)
+    .where("category", "==", categoryFilter)
+    .orderBy("price", sortFilter == "highest" ? "asc" : "desc")
+    .limit(3)
+    .get()
+    .then((querySnapshot) => {
+      if (querySnapshot.empty) {
+        console.log("No transaction found matching the filtered condition.");
+        setFilter([]);
+      } else {
+        const filteredData = [];
+        querySnapshot.forEach((doc) => {
+          console.log(doc.id, " => ", doc.data());
+          filteredData.push({id: doc.id, data: doc.data()});
+        });
+        setFilter(filteredData);
+      }
+    })
+    .catch((error) => {
+      console.log("Error getting documents: ", error);
+    });
+  }
+
+
+}
   return (
     <Modal animationType="slide" transparent={true} visible={visible}>
       <View style={styles.modalContainer}>
@@ -94,18 +139,18 @@ db.collection("expense")
               <TouchableOpacity
                 style={[
                   styles.button,
-                  selectedType === 'Income' && styles.buttonSelected,
+                  selectedType === 'income' && styles.buttonSelected,
                 ]}
-                onPress={() => handleCategorySelect('Income')}
+                onPress={() => handleCategorySelect('income')}
               >
                 <Text style={styles.buttonText}>Income</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.button,
-                  selectedType === 'Expense' && styles.buttonSelected,
+                  selectedType === 'expense' && styles.buttonSelected,
                 ]}
-                onPress={() => handleCategorySelect('Expense')}
+                onPress={() => handleCategorySelect('expense')}
               >
                 <Text style={styles.buttonText}>Expense</Text>
               </TouchableOpacity>
@@ -155,7 +200,7 @@ db.collection("expense")
           <View style={styles.filterSection}>
             <Text style={styles.filterSectionTitle}>Category</Text>
             <View style={styles.picker1}>
-            {selectedType === 'Expense' ? (
+            {selectedType === 'expense' ? (
               <Picker
                 style={styles.picker}
                 selectedValue={selectedCategory}
@@ -192,7 +237,10 @@ db.collection("expense")
           <TouchableOpacity
             style={styles.applyButton}
             activeOpacity={0.5}
-            
+            onPress={() => {
+              handleFilter(selectedType, selectedCategory, sortBy);
+              setVisible(false);
+            }}
           >
             <Text style={styles.applyButtonText}>Apply</Text>
           </TouchableOpacity>

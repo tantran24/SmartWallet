@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState, createContext, useContext } from 'react'
 import { ScrollView, StyleSheet, View, TextInput } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import CustomListItem from '../components/CustomListItem'
@@ -6,11 +6,12 @@ import { db, auth } from '../firebase'
 import { Text, Icon, Button, Input } from 'react-native-elements'
 import { FontAwesome5 } from '@expo/vector-icons'
 import FilterScreen from '../components/FilterScreen'
+import  FilterContext from '../components/FilterContext'
 
 const AllTransactions = ({ navigation }) => {
   const [showFilter, setShowFilter] = useState(false);
   const [transactions, setTransactions] = useState([]);
-  const [filter, setFilter] = useState([]);
+  const { filter, setFilter } = useContext(FilterContext);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterApplied, setFilterApplied] = useState(false);
   const [filterVisible, setFilterVisible] = useState(false);

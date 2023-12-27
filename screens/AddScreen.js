@@ -15,7 +15,7 @@ import { AntDesign, Feather, FontAwesome5 } from "@expo/vector-icons";
 import format from "date-fns/format";
 import { Picker } from "@react-native-picker/picker";
 import { db, auth } from "../firebase";
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
 import { Ionicons } from '@expo/vector-icons';
 
 

@@ -6,8 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import format from 'date-fns/format'
 import {Picker} from '@react-native-picker/picker'
 import {db, auth} from '../firebase'
-import firebase from 'firebase'
-
+import * as firebase from 'firebase/app';
 
 
 

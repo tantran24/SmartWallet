@@ -1,4 +1,4 @@
-# ExpensesApp
+# SmartWallet
 <<<<<<< Updated upstream
 - `npm install` or `yarn` to install all the dependencies, React and React Native among others.
 ## Scenario
